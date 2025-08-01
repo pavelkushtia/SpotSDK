@@ -273,7 +273,6 @@ See [ROADMAP.md](ROADMAP.md) for our development roadmap and progress.
 
 ## 🏆 Used By
 
-- **Zoox** - Autonomous vehicle ML training
 - **[Your Company]** - [Use case]
 - **[Community User]** - [Use case]
 
