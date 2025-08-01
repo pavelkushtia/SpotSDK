@@ -1,0 +1,128 @@
+# Spot SDK Configuration Example
+# Copy this file and customize for your environment
+
+spot_sdk:
+  # Core settings
+  platform: "auto"  # auto, ray, kubernetes, slurm, ec2
+  cloud_provider: "auto"  # auto, aws, gcp, azure
+  
+  # Termination detection settings
+  detection:
+    poll_interval: 5  # seconds between checks
+    early_warning_seconds: 30  # extra time before deadline
+    detector_timeout: 2  # HTTP timeout for metadata checks
+    enable_imds_v2: true  # Use IMDSv2 for AWS
+    fallback_detectors: []  # Additional detection methods
+    custom_endpoints: {}  # Custom metadata endpoints
+  
+  # Replacement strategy settings
+  replacement:
+    strategy: "elastic_scale"  # elastic_scale, checkpoint_restore, migration
+    max_attempts: 3  # Maximum replacement attempts
+    timeout_seconds: 300  # Timeout for replacement operations
+    enable_preemptive: true  # Start replacement before termination
+    min_replacement_delay: 10  # Minimum delay between attempts
+    scale_factor: 1.0  # Scaling multiplier for replacements
+    instance_selection: {}  # Instance selection preferences
+  
+  # State management settings
+  state:
+    backend: "s3"  # s3, gcs, azure, local
+    checkpoint_interval: 300  # seconds between automatic checkpoints
+    max_checkpoints: 10  # Maximum stored checkpoints
+    enable_encryption: true  # Encrypt checkpoints at rest
+    compression_enabled: true  # Compress checkpoints
+    sync_interval: 30  # seconds between state synchronization
+    backend_config:
+      bucket: "my-spot-sdk-checkpoints"  # S3 bucket name
+      prefix: "checkpoints"  # S3 key prefix
+      encryption_key: "my-secret-key"  # Encryption key (use env vars in production)
+  
+  # Graceful shutdown settings
+  shutdown:
+    max_grace_period: 120  # seconds for graceful shutdown
+    force_kill_after: 150  # seconds before force termination
+    enable_preemptive_drain: true  # Start draining early
+    drain_timeout: 300  # Timeout for node draining
+    eviction_timeout: 30  # Timeout for task eviction
+    custom_shutdown_hooks: []  # Custom shutdown commands
+  
+  # Monitoring and observability
+  monitoring:
+    enable_metrics: true  # Enable metrics collection
+    metrics_port: 8080  # Port for metrics endpoint
+    enable_prometheus: false  # Enable Prometheus export
+    log_level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+    structured_logging: false  # Use JSON structured logs
+    metrics_prefix: "spot_sdk"  # Metrics name prefix
+    custom_metrics: []  # Additional custom metrics
+  
+  # Security settings
+  security:
+    enable_encryption: true  # Enable encryption features
+    key_rotation_days: 90  # Days between key rotation
+    audit_logging: false  # Enable audit logging
+    rbac_enabled: false  # Role-based access control
+    tls_verify: true  # Verify TLS certificates
+    credentials_path: null  # Path to credentials file
+  
+  # Platform-specific configuration
+  platform_config:
+    ray:
+      cluster_size: 5  # Expected cluster size
+      address: "auto"  # Ray cluster address
+      dashboard_port: 8265  # Ray dashboard port
+      object_store_memory: null  # Object store memory limit
+      
+    kubernetes:
+      namespace: "default"  # Kubernetes namespace
+      kubeconfig: null  # Path to kubeconfig file
+      context: null  # Kubernetes context to use
+      service_account: null  # Service account name
+      
+    slurm:
+      partition: "gpu"  # Slurm partition
+      account: null  # Slurm account
+      qos: null  # Quality of service
+      constraints: null  # Node constraints
+      
+    ec2:
+      instance_types: ["m5.large", "m5.xlarge"]  # Preferred instance types
+      availability_zones: []  # Preferred AZs
+      security_groups: []  # Security group IDs
+      key_name: null  # EC2 key pair name
+
+# Example configurations for different scenarios:
+
+# Cost-optimized configuration
+# spot_sdk:
+#   platform: "ray"
+#   replacement:
+#     strategy: "checkpoint_restore"
+#   state:
+#     checkpoint_interval: 180  # 3 minutes
+#     max_checkpoints: 20
+#   monitoring:
+#     log_level: "WARNING"
+
+# High-availability configuration  
+# spot_sdk:
+#   platform: "kubernetes"
+#   replacement:
+#     strategy: "elastic_scale"
+#     max_attempts: 5
+#   state:
+#     checkpoint_interval: 600  # 10 minutes
+#     enable_encryption: true
+#   monitoring:
+#     enable_prometheus: true
+
+# Development configuration
+# spot_sdk:
+#   platform: "auto"
+#   state:
+#     backend: "local"
+#     checkpoint_interval: 60  # 1 minute
+#   monitoring:
+#     log_level: "DEBUG"
+#     structured_logging: true
