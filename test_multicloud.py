@@ -206,14 +206,14 @@ def test_spot_manager_multicloud():
                 'platform': 'ec2',
                 'cloud_provider': 'gcp',
                 'detection': {},
-                'state': {'backend': 'local', 'path': '/tmp/test-gcp'},
+                'state': {'backend': 'local', 'backend_config': {'path': '/tmp/test-gcp'}},
                 'replacement': {'strategy': 'elastic_scale'}
             },
             'azure': {
                 'platform': 'ec2',
                 'cloud_provider': 'azure',
                 'detection': {},
-                'state': {'backend': 'local', 'path': '/tmp/test-azure'},
+                'state': {'backend': 'local', 'backend_config': {'path': '/tmp/test-azure'}},
                 'replacement': {'strategy': 'elastic_scale'}
             }
         }
