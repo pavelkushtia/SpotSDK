@@ -163,26 +163,7 @@ with SpotManager(config) as spot:
 
 Spot SDK uses a modular architecture with pluggable components:
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Application   │    │   Spot SDK      │    │  Cloud Provider │
-│                 │    │                 │    │                 │
-│  @spot_protect  │───▶│  ┌─────────────┐ │    │  ┌─────────────┐ │
-│  def my_job():  │    │  │   Manager   │ │    │  │    IMDS     │ │
-│    train()      │    │  └─────────────┘ │    │  │  Metadata   │ │
-│                 │    │  ┌─────────────┐ │    │  │   Service   │ │
-└─────────────────┘    │  │  Detector   │ │◀───┤  └─────────────┘ │
-                       │  └─────────────┘ │    │  ┌─────────────┐ │
-                       │  ┌─────────────┐ │    │  │ Replacement │ │
-                       │  │ Checkpoint  │ │    │  │  Instance   │ │
-                       │  │   Manager   │ │    │  │   Manager   │ │
-                       │  └─────────────┘ │    │  └─────────────┘ │
-                       │  ┌─────────────┐ │    └─────────────────┘
-                       │  │Replacement  │ │
-                       │  │  Manager    │ │
-                       │  └─────────────┘ │
-                       └─────────────────┘
-```
+The architecture provides complete multi-cloud support with automatic detection, graceful handling, and seamless replacement across AWS, GCP, and Azure.
 
 For detailed architecture information, see [ARCHITECTURE.md](ARCHITECTURE.md).
 

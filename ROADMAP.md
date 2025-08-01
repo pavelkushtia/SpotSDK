@@ -10,7 +10,7 @@ Make spot instances accessible to application developers through a simple, unive
 
 ## 📅 Development Phases
 
-### Phase 1: Foundation (Q1 2025) - 85% Complete
+### Phase 1: Foundation (Q1 2025) - 95% Complete
 
 **Core Infrastructure**
 - [x] Core SDK architecture and design patterns
@@ -25,8 +25,10 @@ Make spot instances accessible to application developers through a simple, unive
 - [x] AWS IMDS v1/v2 detector
 - [x] Basic termination notice parsing
 - [x] Fallback detection mechanisms
-- [ ] GCP metadata service detector
-- [ ] Azure IMDS detector
+- [x] GCP metadata service detector
+- [x] Azure IMDS detector
+- [x] Multi-cloud factory registration
+- [x] Auto-detection of cloud platform
 - [ ] Detection reliability improvements
 
 **Basic State Management**

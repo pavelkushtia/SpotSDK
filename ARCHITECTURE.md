@@ -6,7 +6,7 @@ This document provides a detailed technical architecture overview of the Spot SD
 
 1. **Developer Experience**: Simple, intuitive API that abstracts infrastructure complexity
 2. **Platform Agnostic**: Support multiple compute platforms (Ray, K8s, Slurm, etc.)
-3. **Cloud Agnostic**: Work across AWS, GCP, Azure, and on-premises
+3. **Multi-Cloud Native**: Full support for AWS, GCP, and Azure spot instances
 4. **High Reliability**: Robust handling of spot instance terminations
 5. **Performance**: Minimal overhead when spot termination is not occurring
 6. **Extensibility**: Plugin architecture for custom platforms and cloud providers
@@ -187,6 +187,68 @@ class AWSIMDSDetector(TerminationDetector):
                 )
         except Exception as e:
             logger.debug(f"IMDS check failed: {e}")
+        return None
+
+class GCPMetadataDetector(TerminationDetector):
+    """GCP Metadata Service detector for preemptible VMs."""
+    
+    def __init__(self, config):
+        self.config = config
+        self.metadata_url = "http://169.254.169.254/computeMetadata/v1"
+        
+    def check_termination(self) -> Optional[TerminationNotice]:
+        """Check GCP metadata for preemption signal."""
+        try:
+            headers = {"Metadata-Flavor": "Google"}
+            response = requests.get(
+                f"{self.metadata_url}/instance/preempted",
+                headers=headers,
+                timeout=2
+            )
+            
+            if response.status_code == 200 and response.text.strip().upper() == "TRUE":
+                return TerminationNotice(
+                    cloud_provider="gcp",
+                    action="terminate",
+                    time=datetime.now(timezone.utc),
+                    reason="preemption",
+                    deadline_seconds=30
+                )
+        except Exception as e:
+            logger.debug(f"GCP metadata check failed: {e}")
+        return None
+
+class AzureIMDSDetector(TerminationDetector):
+    """Azure Instance Metadata Service detector for spot VM scheduled events."""
+    
+    def __init__(self, config):
+        self.config = config
+        self.metadata_url = "http://169.254.169.254/metadata"
+        
+    def check_termination(self) -> Optional[TerminationNotice]:
+        """Check Azure IMDS for scheduled events."""
+        try:
+            headers = {"Metadata": "true"}
+            response = requests.get(
+                f"{self.metadata_url}/scheduledevents",
+                headers=headers,
+                params={"api-version": "2020-07-01"},
+                timeout=2
+            )
+            
+            if response.status_code == 200:
+                events = response.json().get("Events", [])
+                for event in events:
+                    if event.get("EventType") in ["Preempt", "Terminate"]:
+                        return TerminationNotice(
+                            cloud_provider="azure",
+                            action=event["EventType"].lower(),
+                            time=datetime.fromisoformat(event.get("NotBefore", "").replace("Z", "+00:00")),
+                            reason="spot_eviction" if event["EventType"] == "Preempt" else "termination",
+                            deadline_seconds=30
+                        )
+        except Exception as e:
+            logger.debug(f"Azure IMDS check failed: {e}")
         return None
 ```
 
