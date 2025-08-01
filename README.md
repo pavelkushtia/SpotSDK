@@ -41,7 +41,7 @@ with SpotManager(platform="ray") as spot:
 - **🔧 Multi-Platform**: Ray, Kubernetes, Slurm, bare EC2, and more
 - **🔄 Auto-Recovery**: Automatic checkpoint/restore on spot termination
 - **📊 Smart Replacement**: Intelligent scaling and replacement strategies
-- **☁️ Multi-Cloud**: AWS, GCP, Azure support
+- **☁️ Multi-Cloud**: Full AWS, GCP, and Azure spot instance support
 - **📈 Observability**: Built-in metrics and monitoring
 - **🔌 Extensible**: Plugin architecture for custom platforms
 
@@ -112,21 +112,50 @@ def distributed_training():
     pass
 ```
 
-### Generic Platform Support
+### Multi-Cloud Platform Support
 
+#### AWS EC2 Spot Instances
 ```python
 from spot_sdk import SpotConfig, SpotManager
 
 config = SpotConfig(
-    platform="custom",
-    termination_detector="aws_imds",
-    replacement_strategy="checkpoint_restore",
-    state_backend="s3://my-bucket/state",
-    grace_period=120
+    platform="ec2",
+    detection={"platform": "aws"},
+    state={"backend": "s3", "bucket": "my-checkpoints"},
+    replacement={"strategy": "elastic_scale"}
 )
 
 with SpotManager(config) as spot:
-    # Automatic spot handling for any workload
+    result = my_computation()
+```
+
+#### GCP Preemptible VMs
+```python
+from spot_sdk import SpotConfig, SpotManager
+
+config = SpotConfig(
+    platform="ec2",  # Generic platform
+    detection={"platform": "gcp"},
+    state={"backend": "local", "path": "/tmp/state"},
+    replacement={"strategy": "checkpoint_restore"}
+)
+
+with SpotManager(config) as spot:
+    result = my_computation()
+```
+
+#### Azure Spot VMs
+```python
+from spot_sdk import SpotConfig, SpotManager
+
+config = SpotConfig(
+    platform="ec2",  # Generic platform
+    detection={"platform": "azure"},
+    state={"backend": "local", "path": "/tmp/state"},
+    replacement={"strategy": "elastic_scale"}
+)
+
+with SpotManager(config) as spot:
     result = my_computation()
 ```
 
