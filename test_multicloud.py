@@ -65,7 +65,9 @@ def test_gcp_detection():
     try:
         from spot_sdk.detection.gcp_detector import GCPMetadataDetector
         
-        detector = GCPMetadataDetector(timeout=1.0)
+        from spot_sdk.core.config import DetectionConfig
+        config = DetectionConfig()
+        detector = GCPMetadataDetector(config, timeout=1.0)
         
         # Test basic connectivity
         is_gcp = detector.is_gcp_instance()
@@ -103,7 +105,9 @@ def test_azure_detection():
     try:
         from spot_sdk.detection.azure_detector import AzureIMDSDetector
         
-        detector = AzureIMDSDetector(timeout=1.0)
+        from spot_sdk.core.config import DetectionConfig
+        config = DetectionConfig()
+        detector = AzureIMDSDetector(config, timeout=1.0)
         
         # Test basic connectivity
         is_azure = detector.is_azure_instance()
@@ -193,19 +197,22 @@ def test_spot_manager_multicloud():
         configs = {
             'aws': {
                 'platform': 'ec2',
-                'detection': {'cloud_provider': 'aws'},
-                'state': {'backend': 'local', 'path': '/tmp/test-aws'},
+                'cloud_provider': 'aws',
+                'detection': {},
+                'state': {'backend': 'local', 'backend_config': {'path': '/tmp/test-aws'}},
                 'replacement': {'strategy': 'elastic_scale'}
             },
             'gcp': {
                 'platform': 'ec2',
-                'detection': {'cloud_provider': 'gcp'},
+                'cloud_provider': 'gcp',
+                'detection': {},
                 'state': {'backend': 'local', 'path': '/tmp/test-gcp'},
                 'replacement': {'strategy': 'elastic_scale'}
             },
             'azure': {
                 'platform': 'ec2',
-                'detection': {'cloud_provider': 'azure'},
+                'cloud_provider': 'azure',
+                'detection': {},
                 'state': {'backend': 'local', 'path': '/tmp/test-azure'},
                 'replacement': {'strategy': 'elastic_scale'}
             }

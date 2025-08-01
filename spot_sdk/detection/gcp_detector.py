@@ -59,8 +59,9 @@ class GCPMetadataDetector:
     
     def __init__(
         self,
+        config,
         metadata_url: str = "http://169.254.169.254/computeMetadata/v1",
-        timeout: float = 2.0,
+        timeout: float = None,
         max_retries: int = 3,
         backoff_factor: float = 0.3
     ):
@@ -68,13 +69,15 @@ class GCPMetadataDetector:
         Initialize GCP metadata detector.
         
         Args:
+            config: DetectionConfig object
             metadata_url: Base URL for GCP metadata service
             timeout: Request timeout in seconds
             max_retries: Maximum number of retry attempts
             backoff_factor: Backoff factor for retries
         """
+        self.config = config
         self.metadata_url = metadata_url.rstrip('/')
-        self.timeout = timeout
+        self.timeout = timeout or (config.detector_timeout if hasattr(config, 'detector_timeout') else 2.0)
         self.max_retries = max_retries
         self.backoff_factor = backoff_factor
         
