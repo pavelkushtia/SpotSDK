@@ -187,17 +187,10 @@ class PlatformManagerFactory:
     @classmethod
     def _auto_detect_platform(cls) -> str:
         """Auto-detect the current platform."""
-        # Try to detect Ray
-        try:
-            import ray
-            if ray.is_initialized():
-                return "ray"
-        except ImportError:
-            pass
+        import os
         
-        # Try to detect Kubernetes
+        # Try to detect Kubernetes first (most specific)
         try:
-            import os
             if os.path.exists("/var/run/secrets/kubernetes.io/serviceaccount"):
                 return "kubernetes"
         except:
@@ -205,14 +198,25 @@ class PlatformManagerFactory:
         
         # Try to detect Slurm
         try:
-            import os
             if "SLURM_JOB_ID" in os.environ:
                 return "slurm"
         except:
             pass
         
-        # Default to EC2
-        logger.warning("Could not auto-detect platform, defaulting to EC2")
+        # Try to detect Ray (but only if it's actually available and initialized)
+        try:
+            import ray
+            if ray.is_initialized():
+                return "ray"
+        except ImportError:
+            # Ray not available, continue to other options
+            pass
+        except Exception:
+            # Ray available but not initialized, could still be EC2
+            pass
+        
+        # Default to EC2 (works in most cloud environments)
+        logger.debug("Auto-detected platform as EC2 (fallback)")
         return "ec2"
     
     @classmethod
